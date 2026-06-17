@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("ADMIN")
+  createdAt DateTime @default(now())
+}
+
+model Product {
+  id          String          @id @default(uuid())
+  name        String
+  description String
+  price       Int
+  promoPrice  Int?
+  category    String
+  imageUrl    String?
+  stock       Int             @default(0)
+  isTopSale   Boolean         @default(false)
+  isNew       Boolean         @default(false)
+  prepMinutes Int             @default(20)
+  active      Boolean         @default(true)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  orderItems  OrderItem[]
+  reviews     Review[]
+}
+
+model Order {
+  id              String        @id @default(uuid())
+  customerName    String
+  customerPhone   String
+  customerEmail   String?
+  deliveryAddress String
+  notes           String?
+  paymentMethod   String
+  paymentStatus   String        @default("PENDING")
+  status          String        @default("PENDING")
+  subtotal        Int
+  deliveryFee     Int           @default(0)
+  discount        Int           @default(0)
+  total           Int
+  promoCode       String?
+  prepMinutes     Int           @default(25)
+  deliveryMinutes Int           @default(15)
+  reviewToken     String        @unique @default(uuid())
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  items           OrderItem[]
+  reviews         Review[]
+}
+
+model OrderItem {
+  id        String  @id @default(uuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  name      String
+  price     Int
+  quantity  Int
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  pseudo    String
+  rating    Int
+  comment   String
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id])
+  orderId   String?
+  order     Order?   @relation(fields: [orderId], references: [id])
+  published Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model PromoCode {
+  id         String    @id @default(uuid())
+  code       String    @unique
+  percentOff Int
+  active     Boolean   @default(true)
+  expiresAt  DateTime?
+  createdAt  DateTime  @default(now())
+}
+
+model Settings {
+  id                     String @id @default("settings")
+  openingHours           String @default("Lun-Dim: 07h00 - 21h00")
+  holidays               String @default("")
+  deliveryZone           String @default("Ngaoundéré uniquement")
+  defaultPrepMinutes     Int    @default(25)
+  defaultDeliveryMinutes Int    @default(15)
+  deliveryFee            Int    @default(1000)
+}
+
+model Visit {
+  id        String   @id @default(uuid())
+  sessionId String   @unique
+  createdAt DateTime @default(now())
+}

@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #fbf3e3;
+  --foreground: #3b2317;
+}
+
+.dark {
+  --background: #1c130d;
+  --foreground: #f9ecc9;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .btn-gold {
+    @apply inline-flex items-center justify-center rounded-full bg-gold-500 px-6 py-3 font-semibold text-white shadow-md transition hover:bg-gold-600;
+  }
+  .btn-outline {
+    @apply inline-flex items-center justify-center rounded-full border-2 border-gold-500 px-6 py-3 font-semibold text-gold-600 transition hover:bg-gold-50;
+  }
+  .card {
+    @apply rounded-2xl border border-gold-100 bg-white/80 shadow-sm dark:bg-cocoa/40 dark:border-gold-800;
+  }
+  .section-title {
+    @apply font-serif text-3xl sm:text-4xl text-cocoa dark:text-gold-100;
+  }
+}
