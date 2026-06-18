@@ -24,7 +24,7 @@ export async function GET() {
   if (!session) return Response.json({ error: "Non autorisé" }, { status: 401 });
 
   const now = new Date();
-  const [visitors, ordersToday, ordersWeek, ordersMonth, allOrders, reviewsCount] =
+  const [visitors, ordersToday, ordersWeek, ordersMonth, allOrders, reviewsCount, customersCount] =
     await Promise.all([
       prisma.visit.count(),
       prisma.order.count({ where: { createdAt: { gte: startOfDay(now) } } }),
@@ -32,6 +32,7 @@ export async function GET() {
       prisma.order.count({ where: { createdAt: { gte: startOfMonth(now) } } }),
       prisma.order.findMany({ where: { paymentStatus: "PAID" } }),
       prisma.review.count(),
+      prisma.customer.count(),
     ]);
 
   const revenue = allOrders.reduce((sum, o) => sum + o.total, 0);
@@ -44,5 +45,6 @@ export async function GET() {
     totalOrders: allOrders.length,
     revenue,
     reviewsCount,
+    customersCount,
   });
 }

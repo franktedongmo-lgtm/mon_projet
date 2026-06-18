@@ -19,7 +19,9 @@ export default function ProductCard({ product }) {
               className="h-full w-full object-cover transition group-hover:scale-105"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-5xl">🍰</div>
+            <div className="flex h-full w-full items-center justify-center bg-gold-100 text-sm text-cocoa/40">
+              Photo à venir
+            </div>
           )}
           <div className="absolute left-2 top-2 flex flex-col gap-1">
             {product.isTopSale && (

@@ -16,7 +16,7 @@ export default async function AvisPage() {
       <h1 className="section-title">Avis clients</h1>
       {reviews.length > 0 && (
         <div className="mt-4 flex items-center gap-3">
-          <StarRating value={avg} size="text-2xl" />
+          <StarRating value={avg} size="h-6 w-6" />
           <span className="text-cocoa/70">{avg.toFixed(1)} / 5 ({reviews.length} avis)</span>
         </div>
       )}

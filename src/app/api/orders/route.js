@@ -30,6 +30,7 @@ export async function POST(req) {
     items,
     promoCode,
     cardToken,
+    customerId,
   } = body;
 
   if (!customerName || !customerPhone || !deliveryAddress || !items?.length) {
@@ -71,6 +72,7 @@ export async function POST(req) {
 
   const order = await prisma.order.create({
     data: {
+      customerId: customerId || null,
       customerName,
       customerPhone,
       customerEmail,

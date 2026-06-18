@@ -26,7 +26,9 @@ export default async function ProductPage({ params }) {
           {product.imageUrl ? (
             <img src={product.imageUrl} alt={product.name} className="h-full w-full object-cover" />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-8xl">🍰</div>
+            <div className="flex h-full w-full items-center justify-center bg-gold-100 text-sm text-cocoa/40">
+              Photo à venir
+            </div>
           )}
         </div>
 

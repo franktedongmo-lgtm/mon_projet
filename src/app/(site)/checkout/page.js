@@ -1,12 +1,14 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { useCart } from "@/lib/cart-context";
 import { formatXAF, PAYMENT_METHODS } from "@/lib/format";
 
 export default function CheckoutPage() {
   const { items, subtotal, clearCart } = useCart();
   const router = useRouter();
+  const { data: session } = useSession();
 
   const [form, setForm] = useState({
     customerName: "",
@@ -16,6 +18,22 @@ export default function CheckoutPage() {
     notes: "",
     paymentMethod: "ORANGE_MONEY",
   });
+
+  useEffect(() => {
+    if (session?.user?.role === "CUSTOMER") {
+      fetch("/api/customers/me")
+        .then((r) => r.json())
+        .then((data) => {
+          setForm((f) => ({
+            ...f,
+            customerName: data.name || f.customerName,
+            customerEmail: data.email || f.customerEmail,
+            customerPhone: data.phone || f.customerPhone,
+            deliveryAddress: data.address || f.deliveryAddress,
+          }));
+        });
+    }
+  }, [session]);
   const [promoCode, setPromoCode] = useState("");
   const [discountPercent, setDiscountPercent] = useState(0);
   const [promoMessage, setPromoMessage] = useState("");
@@ -57,6 +75,7 @@ export default function CheckoutPage() {
           ...form,
           items,
           promoCode: discountPercent ? promoCode : undefined,
+          customerId: session?.user?.role === "CUSTOMER" ? session.user.id : undefined,
         }),
       });
       const data = await res.json();

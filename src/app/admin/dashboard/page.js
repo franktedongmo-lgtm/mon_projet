@@ -18,6 +18,7 @@ export default function DashboardPage() {
     { label: "Commandes ce mois", value: stats.ordersMonth },
     { label: "Chiffre d'affaires", value: formatXAF(stats.revenue) },
     { label: "Avis reçus", value: stats.reviewsCount },
+    { label: "Clients inscrits", value: stats.customersCount },
   ];
 
   return (

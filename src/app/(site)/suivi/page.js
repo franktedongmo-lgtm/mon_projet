@@ -89,12 +89,22 @@ function SuiviContent() {
             <span>Total</span><span>{formatXAF(order.total)}</span>
           </div>
 
-          <a
-            href={`/avis?orderId=${order.id}`}
-            className="btn-outline mt-6 inline-block"
-          >
-            Laisser un avis sur cette commande
-          </a>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <a
+              href={`/avis?orderId=${order.id}`}
+              className="btn-outline inline-block"
+            >
+              Laisser un avis sur cette commande
+            </a>
+            <a
+              href={`/api/orders/${order.id}/invoice?token=${order.reviewToken}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-gold inline-block"
+            >
+              Télécharger la facture PDF
+            </a>
+          </div>
         </div>
       )}
     </div>

@@ -2,24 +2,29 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import ProductCard from "@/components/ProductCard";
 import StarRating from "@/components/StarRating";
+import OrderModal from "@/components/OrderModal";
+import ContactForm from "@/components/ContactForm";
+import LocationSection from "@/components/LocationSection";
 import { categoryLabel } from "@/lib/format";
 
 async function getHomeData() {
-  const [topSales, newProducts, reviews, visitors] = await Promise.all([
-    prisma.product.findMany({ where: { active: true, isTopSale: true }, take: 4 }),
+  const [topSales, newProducts, reviews, visitors, settings] = await Promise.all([
+    prisma.product.findMany({ where: { active: true, isTopSale: true }, take: 6 }),
     prisma.product.findMany({ where: { active: true, isNew: true }, take: 4 }),
-    prisma.review.findMany({ where: { published: true }, orderBy: { createdAt: "desc" }, take: 3 }),
+    prisma.review.findMany({ where: { published: true }, orderBy: { createdAt: "desc" }, take: 6 }),
     prisma.visit.count(),
+    prisma.settings.upsert({ where: { id: "settings" }, update: {}, create: { id: "settings" } }),
   ]);
-  return { topSales, newProducts, reviews, visitors };
+  return { topSales, newProducts, reviews, visitors, settings };
 }
 
 export default async function HomePage() {
-  const { topSales, newProducts, reviews, visitors } = await getHomeData();
+  const { topSales, newProducts, reviews, visitors, settings } = await getHomeData();
+  const modalProducts = [...topSales, ...newProducts].slice(0, 8);
 
   return (
     <div>
-      {/* HERO — full width landing */}
+      {/* HERO */}
       <section className="relative w-full overflow-hidden bg-gradient-to-br from-cocoa via-gold-700 to-gold-500 text-white">
         <div className="mx-auto flex min-h-[80vh] w-full max-w-[1600px] flex-col items-center justify-center gap-8 px-6 py-24 text-center sm:px-12">
           <span className="rounded-full border border-gold-200/50 bg-white/10 px-4 py-1 text-sm font-medium tracking-wide">
@@ -33,19 +38,55 @@ export default async function HomePage() {
             fraîches, boissons et plats préparés avec passion, livrés chez vous.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
-            <Link href="/catalogue" className="btn-gold">
-              Voir le catalogue
-            </Link>
-            <Link
-              href="/contact"
+            <OrderModal products={modalProducts} trigger="Commander maintenant" />
+            <a
+              href="#localisation"
               className="rounded-full border-2 border-white/70 px-6 py-3 font-semibold transition hover:bg-white/10"
             >
               Nous trouver
-            </Link>
+            </a>
           </div>
           <p className="text-sm text-gold-100/80">
-            👀 {visitors.toLocaleString("fr-FR")} visiteurs nous font déjà confiance
+            {visitors.toLocaleString("fr-FR")} visiteurs nous font déjà confiance
           </p>
+        </div>
+      </section>
+
+      {/* À PROPOS */}
+      <section className="mx-auto w-full max-w-[1600px] px-6 py-16 sm:px-12">
+        <div className="grid items-center gap-10 lg:grid-cols-2">
+          <div>
+            <h2 className="section-title">Notre savoir-faire</h2>
+            <p className="mt-4 text-cocoa/80 dark:text-gold-100/80">
+              Depuis Ngaoundéré, ARoyal Pastry confectionne chaque jour des gâteaux sur-mesure, des
+              viennoiseries fraîches et des plats traditionnels camerounais, avec des ingrédients
+              soigneusement sélectionnés et un savoir-faire artisanal transmis de génération en
+              génération.
+            </p>
+            <p className="mt-4 text-cocoa/80 dark:text-gold-100/80">
+              Que ce soit pour un événement, un cadeau gourmand ou simplement pour se faire plaisir,
+              notre équipe met tout son cœur dans chaque création, livrée fraîche directement chez
+              vous.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="card flex flex-col items-center gap-2 p-6 text-center">
+              <span className="font-serif text-3xl text-gold-600">100%</span>
+              <span className="text-sm text-cocoa/70 dark:text-gold-100/70">Artisanal & frais</span>
+            </div>
+            <div className="card flex flex-col items-center gap-2 p-6 text-center">
+              <span className="font-serif text-3xl text-gold-600">7j/7</span>
+              <span className="text-sm text-cocoa/70 dark:text-gold-100/70">Livraison à Ngaoundéré</span>
+            </div>
+            <div className="card flex flex-col items-center gap-2 p-6 text-center">
+              <span className="font-serif text-3xl text-gold-600">4</span>
+              <span className="text-sm text-cocoa/70 dark:text-gold-100/70">Catégories de produits</span>
+            </div>
+            <div className="card flex flex-col items-center gap-2 p-6 text-center">
+              <span className="font-serif text-3xl text-gold-600">{visitors}</span>
+              <span className="text-sm text-cocoa/70 dark:text-gold-100/70">Visiteurs satisfaits</span>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -53,18 +94,12 @@ export default async function HomePage() {
       <section className="mx-auto w-full max-w-[1600px] px-6 py-16 sm:px-12">
         <h2 className="section-title text-center">Nos catégories</h2>
         <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-4">
-          {[
-            { cat: "GATEAUX", emoji: "🎂" },
-            { cat: "VIENNOISERIES", emoji: "🥐" },
-            { cat: "BOISSONS", emoji: "🥤" },
-            { cat: "PLATS", emoji: "🍛" },
-          ].map(({ cat, emoji }) => (
+          {["GATEAUX", "VIENNOISERIES", "BOISSONS", "PLATS"].map((cat) => (
             <Link
               key={cat}
               href={`/catalogue?category=${cat}`}
               className="card flex flex-col items-center gap-3 p-8 text-center transition hover:-translate-y-1 hover:shadow-lg"
             >
-              <span className="text-5xl">{emoji}</span>
               <span className="font-serif text-xl text-cocoa dark:text-gold-100">
                 {categoryLabel(cat)}
               </span>
@@ -102,8 +137,8 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* REVIEWS WIDGET */}
-      <section className="w-full bg-cream py-16 dark:bg-cocoa/40">
+      {/* REVIEWS */}
+      <section id="avis" className="w-full bg-cream py-16 dark:bg-cocoa/40">
         <div className="mx-auto max-w-[1600px] px-6 sm:px-12">
           <h2 className="section-title text-center">Ce que disent nos clients</h2>
           <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3">
@@ -122,9 +157,18 @@ export default async function HomePage() {
           </div>
           <div className="mt-10 text-center">
             <Link href="/avis" className="btn-outline">
-              Voir tous les avis
+              Voir tous les avis / Laisser un avis
             </Link>
           </div>
+        </div>
+      </section>
+
+      {/* CONTACT + LOCALISATION */}
+      <section className="mx-auto w-full max-w-[1600px] px-6 py-16 sm:px-12">
+        <h2 className="section-title text-center">Nous trouver & nous écrire</h2>
+        <div className="mt-10 grid gap-10 lg:grid-cols-2">
+          <ContactForm />
+          <LocationSection settings={settings} />
         </div>
       </section>
 
@@ -135,9 +179,9 @@ export default async function HomePage() {
           Paiement sécurisé via Orange Money, MTN Mobile Money, carte bancaire ou PayPal. Livraison
           rapide sur Ngaoundéré.
         </p>
-        <Link href="/catalogue" className="btn-gold mt-8 inline-block">
-          Commander maintenant
-        </Link>
+        <div className="mt-8">
+          <OrderModal products={modalProducts} trigger="Commander maintenant" />
+        </div>
       </section>
     </div>
   );

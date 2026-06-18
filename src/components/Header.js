@@ -1,17 +1,19 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 import { useCart } from "@/lib/cart-context";
 
 const NAV = [
   { href: "/", label: "Accueil" },
   { href: "/catalogue", label: "Catalogue" },
-  { href: "/avis", label: "Avis clients" },
-  { href: "/contact", label: "Nous trouver" },
+  { href: "/#avis", label: "Avis clients" },
+  { href: "/#localisation", label: "Nous trouver" },
 ];
 
 export default function Header() {
   const { count } = useCart();
+  const { data: session } = useSession();
   const [open, setOpen] = useState(false);
 
   return (
@@ -34,8 +36,17 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <Link href="/panier" className="relative rounded-full border border-gold-300 p-2 hover:bg-gold-50 dark:hover:bg-cocoa">
-            🛒
+          <Link
+            href={session ? "/compte/dashboard" : "/compte/connexion"}
+            className="hidden text-sm font-medium text-cocoa hover:text-gold-600 dark:text-gold-100 sm:block"
+          >
+            {session ? `Bonjour, ${session.user.name?.split(" ")[0]}` : "Mon compte"}
+          </Link>
+          <Link href="/panier" className="relative rounded-full border border-gold-300 p-2 hover:bg-gold-50 dark:hover:bg-cocoa" aria-label="Panier">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" />
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+            </svg>
             {count > 0 && (
               <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-gold-500 text-xs text-white">
                 {count}
@@ -47,7 +58,9 @@ export default function Header() {
             onClick={() => setOpen((o) => !o)}
             aria-label="Menu"
           >
-            ☰
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
           </button>
         </div>
       </div>
@@ -59,6 +72,9 @@ export default function Header() {
               {item.label}
             </Link>
           ))}
+          <Link href={session ? "/compte/dashboard" : "/compte/connexion"} onClick={() => setOpen(false)} className="font-medium text-cocoa dark:text-gold-100">
+            {session ? "Mon compte" : "Connexion / Inscription"}
+          </Link>
         </nav>
       )}
     </header>

@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CATEGORIES } from "@/lib/format";
+import ImageUpload from "@/components/ImageUpload";
 
 export default function ProductForm({ initial, productId }) {
   const router = useRouter();
@@ -78,11 +79,10 @@ export default function ProductForm({ initial, productId }) {
           <option key={c.value} value={c.value}>{c.label}</option>
         ))}
       </select>
-      <input
-        placeholder="URL de l'image"
-        value={form.imageUrl || ""}
-        onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
-        className="w-full rounded-lg border border-gold-300 px-4 py-2"
+      <ImageUpload
+        label="Photo du produit"
+        value={form.imageUrl}
+        onChange={(url) => setForm({ ...form, imageUrl: url })}
       />
       <div className="grid grid-cols-2 gap-4">
         <input

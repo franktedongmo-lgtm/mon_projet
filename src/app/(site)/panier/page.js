@@ -29,7 +29,9 @@ export default function CartPage() {
                 {item.imageUrl ? (
                   <img src={item.imageUrl} alt={item.name} className="h-full w-full object-cover" />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center text-3xl">🍰</div>
+                  <div className="flex h-full w-full items-center justify-center bg-gold-100 text-xs text-cocoa/40">
+                    Photo
+                  </div>
                 )}
               </div>
               <div className="flex-1">
